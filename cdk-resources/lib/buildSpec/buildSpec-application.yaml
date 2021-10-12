@@ -1,0 +1,33 @@
+version: "0.2"
+env:
+  variables:
+    EXECUTABLENAME: 'installApp.sh'
+    SERVICE_URL_OUT: ''
+  exported-variables:
+    - SERVICE_URL_OUT
+phases:
+  install:
+    commands:
+      - HELM_DOWNLOAD_URL=https://get.helm.sh/helm-v3.5.4-linux-amd64.tar.gz
+      - echo $HELM_DOWNLOAD_URL
+      - wget -q $HELM_DOWNLOAD_URL
+      - tar -zxvf helm-v3.5.4-linux-amd64.tar.gz
+      - mv linux-amd64/helm /usr/local/bin/helm
+  pre_build:
+    commands:
+  build:
+    commands:
+      - pwd
+      - |
+        installAppFile=scripts/$EXECUTABLENAME
+        if [ -f "$installAppFile" ]; then
+             chmod +x $installAppFile;
+             . ./$installAppFile
+        else 
+            echo "Please add $EXECUTABLENAME in script folder for app deployment implementation." 
+            exit 1
+        fi
+artifacts:
+  files:
+    - "output.json"
+    - "scripts/*"

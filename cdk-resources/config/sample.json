@@ -1,0 +1,10 @@
+{
+    "userEmail":"nobody@amazon.com",
+    "eksDevClusterName":"eksworkshop-eksctl",
+    "eksProdClusterName":"eksworkshop-eksctl",
+    "eksOIDCProvider":"arn:aws:iam::<accountID>:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/<OIDCID>",
+    "codeArtifactDomain":"reinvent-domain-2021",
+    "codeArtifactRepository":"workshop-repository",
+    "eksDevMasterRoleArn":"arn:aws:iam::<accountID>:role/eksworkshop-admin",
+    "eksProdMasterRoleArn":"arn:aws:iam::<accountID>:role/eksworkshop-admin"
+}
