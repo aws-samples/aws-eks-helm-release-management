@@ -23,6 +23,7 @@ This library is licensed under the MIT-0 License. See the LICENSE file.
 - Sandeep Gawande
 - Pragtideep Singh
 - Brian Beach
+- Nikunj Vaidya
 
 ## Security
 
