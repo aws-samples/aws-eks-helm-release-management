@@ -3,7 +3,7 @@
 sudo yum install -y jq
 
 USER_EMAIL="participant@workshops.aws"
-export AWS_REGION=us-east-1
+export AWS_REGION=`curl http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}'`
 EKS_STACK_NAME="eksctl-eksworkshop-eksctl-cluster"
 
 aws configure set region $AWS_REGION
