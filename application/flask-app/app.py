@@ -2,6 +2,7 @@
 import flask
 import datetime
 import platform
+import subprocess
 import os
 
 app = flask.Flask(__name__)
@@ -20,6 +21,18 @@ def hello():
                                  flask_url='https://palletsprojects.com/p/flask/',
                                  time=time,
                                  name=name)
+
+
+def read_lines(file):
+    lines = []
+    f = open(file, 'r')
+    for line in f:
+        lines.append(line.strip('\n').strip('\r\n'))
+    return lines
+
+
+def execute(cmd):
+    retcode = subprocess.call(cmd, shell=True)
 
 
 if __name__ == '__main__':
