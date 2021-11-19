@@ -12,6 +12,8 @@ HELM_REPO_URI=$ACCOUNTID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_HELM_REPO
 export IMAGE_TAG=$(cat output.json | jq -r '.imageTag')
 echo $IMAGE_TAG
 aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO_URI
+#1 Validate CVE scan results using Amazon ECR API
+
 findings=$(aws ecr describe-image-scan-findings --repository-name "$ECR_DOCKER_REPO" --image-id imageTag="$IMAGE_TAG" --query "{scanResult: imageScanFindings.findingSeverityCounts,imageDigest : imageId.imageDigest}")
 echo $findings
 Critical=$(echo $findings | jq '.scanResult.CRITICAL // 0 | tonumber')
@@ -20,7 +22,7 @@ High=$(echo $findings | jq '.scanResult.HIGH // 0 | tonumber')
 echo $High
 export imageDigest=$(echo $findings | jq '.imageDigest')
 echo $imageDigest
-# 3. If ECR SCAN is not Good then Download Helm CHART from ECR REPO 
+# If ECR SCAN is not Good then Download Helm CHART from ECR REPO 
 if [ $Critical -gt 0 ] || [ $High -gt 0 ]; then
     # echo "Vulnerability found .Add Failed Tag" $imageDigest
     # if Critical & High Vulnerability mark tag as Failed.
@@ -32,9 +34,10 @@ if [ $Critical -gt 0 ] || [ $High -gt 0 ]; then
     aws sns publish --topic-arn $SNS_TOPIC --message "Scan failed at Validate and Deploy to Test"
     exit 1
 else
+#2 Deploy to Amazon EKS test environment/namespace using helm
 
     aws eks update-kubeconfig --name $EKS_CLUSTERNAME --region $AWS_REGION --role-arn $EKS_CLUSTERROLE_ARN
-# 5. Execute the helm upgrade --install pythonflask flask-kubernetes-helm -n flask
+# Execute the helm upgrade --install pythonflask flask-kubernetes-helm -n flask
     kubectl get ns $NAMESPACE
     if [ $? -ne 0 ]; then  #not eual check    kubectl create ns $NAMESPACE
         kubectl create ns $NAMESPACE
@@ -63,6 +66,7 @@ else
     chmod +x scripts/ValidateApp.sh
     ./scripts/ValidateApp.sh pythonflask-flask-kubernetes-helm
     SERVICE_URL=$(kubectl get svc --namespace flask pythonflask-flask-kubernetes-helm -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+#3 Wait for successful deployment and rollback on failure
 
     response=$(curl -s -o /dev/null -w "%{http_code}" $SERVICE_URL)
     if [ $response != 200 ]; then

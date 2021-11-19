@@ -10,7 +10,10 @@ echo $IMAGE_TAG
 echo $AWS_REGION
 echo $AWS_DEFAULT_REGION
 pip install awscli --upgrade --user
+#1 Code is compiled using dependencies from CodeArtifact
+
 aws codeartifact login --tool pip --domain $ARTIFACT_DOMAIN --domain-owner $ACCOUNTID --repository $ARTIFACT_REPOSITORY
+#2 Unit tests and static code analysis are executed
 
 # Best practice is wait for CodeGuru to finish the code review, but it takes too long for the lab, therefore skipping.
 # folderName=$(git diff-tree --no-commit-id --name-only -r $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -d '/' -f 1)                         
@@ -25,9 +28,11 @@ aws ecr get-login-password  | docker login --username AWS --password-stdin $ECR_
 echo "image doesn't exist hence pushing"; 
 docker build -t $ECR_REPO_URI:$IMAGE_TAG .
 docker images
-   
+#3 Container is built and pushed to Amazon ECR test repository
+
 docker push $ECR_REPO_URI:$IMAGE_TAG
-    
+#4 Amazon ECR scans for common vulnerabilities and exposures (CVE)
+
     
 cd $CODEBUILD_SRC_DIR/$HELM_TEMPLATE
     

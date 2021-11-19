@@ -31,7 +31,8 @@ else
     aws ecr get-login-password | docker login --username AWS --password-stdin $TEST_DOCKER_URI
     docker pull $TEST_DOCKER_URI:$TEST_IMAGE_TAG
     # compare the checksum from exported variable before proceeding
-   
+   #1 Check for image integrity
+
     imageDigest=$(docker inspect $TEST_DOCKER_URI:$TEST_IMAGE_TAG | jq -r ".[].RepoDigests[]"| cut -d '@' -f 2)
     echo $imageDigest
     if [$imageDigest != $ECR_DOCKER_IMGE_DIGEST]; then 
@@ -41,6 +42,7 @@ else
     fi
     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
     
+    #2 Push to Amazon ECR production repository 
 
     docker tag $TEST_DOCKER_URI:$TEST_IMAGE_TAG $ECR_REPO_URI:$IMAGE_TAG
     #docker images push
